@@ -1,0 +1,76 @@
+name: Prebuild & publish
+
+# Builds N-API prebuilt binaries on each OS with prebuildify, then (on a version
+# tag, or a manual run with publish=true) assembles them and publishes to npm.
+# N-API prebuilds are ABI-stable across Node versions, so one build per platform
+# is enough — no Node-version matrix needed.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish to npm after building"
+        type: boolean
+        default: false
+
+jobs:
+  prebuild:
+    name: prebuild (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest # linux-x64
+          - os: macos-13 # darwin-x64 (Intel)
+          - os: macos-14 # darwin-arm64 (Apple Silicon)
+          - os: windows-latest # win32-x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # --ignore-scripts: install devDeps (node-gyp, prebuildify) without running
+      # the package's own `install` script; prebuildify does the build below.
+      - run: npm install --ignore-scripts
+      - name: Build prebuilt binary
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            npx prebuildify --napi        # no `strip` tool on Windows runners
+          else
+            npx prebuildify --napi --strip
+          fi
+          ls -R prebuilds
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prebuilds-${{ matrix.os }}
+          path: prebuilds/
+          if-no-files-found: error
+
+  publish:
+    name: publish to npm
+    needs: prebuild
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: "https://registry.npmjs.org"
+      # Merge every platform's artifact back into prebuilds/<platform-arch>/...
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: prebuilds-*
+          path: prebuilds
+          merge-multiple: true
+      - name: Show assembled prebuilds
+        run: ls -R prebuilds
+      - run: npm install --ignore-scripts
+      - run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
