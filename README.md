@@ -1,4 +1,24 @@
-# tree-sitter-hack
+# @mmissey/tree-sitter-hacklang
+
+> **Fork notice.** This is a fork of [`slackhq/tree-sitter-hack`](https://github.com/slackhq/tree-sitter-hack)
+> (published to npm as `tree-sitter-hacklang`, now archived). The **only** change to the
+> grammar's behavior is the node binding: upstream ships a [`nan`](https://github.com/nodejs/nan)-based
+> binding that stashes the raw `TSLanguage*` in a V8 internal field with no `napi_type_tag`,
+> which `tree-sitter@0.21+` rejects with *"Invalid language object"*. Here,
+> `bindings/node/binding.cc` is re-bound with [`node-addon-api`](https://github.com/nodejs/node-addon-api)
+> so it tags the language `External` as `tree-sitter@0.21+` expects. Binaries are prebuilt with
+> [`prebuildify`](https://github.com/prebuild/prebuildify) and loaded via
+> [`node-gyp-build`](https://github.com/prebuild/node-gyp-build), so consumers need no C
+> toolchain on supported platforms (with a build-from-source fallback everywhere else).
+> The grammar itself — `grammar.js`, `src/parser.c`, `src/scanner.c` — is unchanged from upstream.
+>
+> MIT-licensed. Original grammar © 2020 Antonio de Jesus Ochoa Solano; the upstream `LICENSE`
+> is preserved verbatim. Install with `npm install @mmissey/tree-sitter-hacklang`, then
+> `require("@mmissey/tree-sitter-hacklang").hack`.
+>
+> ---
+>
+> _Upstream README follows._
 
 ![build](https://github.com/slackhq/tree-sitter-hack/actions/workflows/ci.yml/badge.svg)
 

@@ -1,39 +1,49 @@
 {
-  "name": "tree-sitter-hacklang",
-  "version": "0.0.4",
-  "description": "Hack grammar for tree-sitter",
+  "name": "@mmissey/tree-sitter-hacklang",
+  "version": "0.1.0",
+  "description": "Hack (Hacklang) grammar for tree-sitter — fork of slackhq/tree-sitter-hack re-bound with node-addon-api for tree-sitter@0.21+ compatibility, with prebuilt binaries",
   "main": "bindings/node",
+  "types": "bindings/node",
   "keywords": [
     "parser",
     "lexer",
+    "tree-sitter",
+    "hack",
     "hacklang",
     "hhvm"
   ],
-  "author": "Antonio de Jesus Ochoa Solano",
+  "author": "Antonio de Jesus Ochoa Solano (original grammar)",
+  "contributors": [
+    "Marc Missey (node-addon-api binding + prebuilt packaging)"
+  ],
   "license": "MIT",
-  "homepage": "https://github.com/slackhq/tree-sitter-hack#readme",
+  "homepage": "https://github.com/mmissey/tree-sitter-hacklang#readme",
   "bugs": {
-    "url": "https://github.com/slackhq/tree-sitter-hack/issues"
+    "url": "https://github.com/mmissey/tree-sitter-hacklang/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmissey/tree-sitter-hacklang.git"
   },
   "engines": {
     "node": ">=14.7.0"
   },
   "dependencies": {
-    "nan": "^2.14.1"
+    "node-addon-api": "^7.1.0",
+    "node-gyp-build": "^4.8.0"
   },
   "devDependencies": {
+    "node-gyp": "^10.0.0",
+    "prebuildify": "^6.0.0",
     "tree-sitter-cli": "~0.20.6"
   },
   "scripts": {
+    "install": "node-gyp-build",
+    "prebuild": "prebuildify --napi --strip",
     "build": "bin/generate-parser --force && node-gyp build",
     "test": "bin/generate-corpus && tree-sitter test",
     "test-corpus": "bin/test-corpus",
-    "test-examples": "bin/test-examples",
-    "reset": "rm -rf build node_modules package-lock.json tmp/grammar.js.sha && npm install && npm run build"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/slackhq/tree-sitter-hack.git"
+    "test-examples": "bin/test-examples"
   },
   "tree-sitter": [
     {
