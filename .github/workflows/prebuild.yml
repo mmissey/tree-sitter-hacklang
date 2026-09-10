@@ -32,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       # --ignore-scripts: install devDeps (node-gyp, prebuildify) without running
       # the package's own `install` script; prebuildify does the build below.
       - run: npm install --ignore-scripts
@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: "https://registry.npmjs.org"
       # Trusted publishing (and automatic provenance) needs npm >= 11.5.1.
       - name: Upgrade npm for trusted publishing
