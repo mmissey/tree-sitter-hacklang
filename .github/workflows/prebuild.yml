@@ -24,8 +24,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest # linux-x64
-          - os: macos-13 # darwin-x64 (Intel)
-          - os: macos-14 # darwin-arm64 (Apple Silicon)
+          # macos-14 (Apple Silicon) builds BOTH darwin-arm64 (native) and
+          # darwin-x64 (cross-compiled via clang -arch x86_64). GitHub's Intel
+          # macos-13 runners are being retired and frequently never schedule,
+          # so we no longer use a separate Intel runner.
+          - os: macos-14 # darwin-arm64 + darwin-x64
           # Pin to windows-2022 (VS 2022 / v17). windows-latest is now Windows
           # Server 2025, which ships VS 18 (2026) — node-gyp can't detect it
           # ("unknown version undefined") and its PowerShell VS finder overflows
@@ -45,6 +48,9 @@ jobs:
         run: |
           if [ "$RUNNER_OS" = "Windows" ]; then
             npx prebuildify --napi        # no `strip` tool on Windows runners
+          elif [ "$RUNNER_OS" = "macOS" ]; then
+            npx prebuildify --napi --strip --arch arm64   # native
+            npx prebuildify --napi --strip --arch x64     # cross-compile for Intel Macs
           else
             npx prebuildify --napi --strip
           fi
