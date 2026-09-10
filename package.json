@@ -1,6 +1,6 @@
 {
   "name": "@mmissey/tree-sitter-hacklang",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Hack (Hacklang) grammar for tree-sitter — fork of slackhq/tree-sitter-hack re-bound with node-addon-api for tree-sitter@0.21+ compatibility, with prebuilt binaries",
   "main": "bindings/node",
   "types": "bindings/node",
