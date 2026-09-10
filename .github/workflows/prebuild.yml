@@ -26,7 +26,11 @@ jobs:
           - os: ubuntu-latest # linux-x64
           - os: macos-13 # darwin-x64 (Intel)
           - os: macos-14 # darwin-arm64 (Apple Silicon)
-          - os: windows-latest # win32-x64
+          # Pin to windows-2022 (VS 2022 / v17). windows-latest is now Windows
+          # Server 2025, which ships VS 18 (2026) — node-gyp can't detect it
+          # ("unknown version undefined") and its PowerShell VS finder overflows
+          # the stdio buffer, breaking the native build.
+          - os: windows-2022 # win32-x64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
